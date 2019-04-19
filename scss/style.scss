@@ -1,0 +1,99 @@
+@mixin spanFieldNeighbour {
+    position: absolute;
+    font-size: .5rem;
+    text-transform: uppercase;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+//    text-align: center;
+    font-family: sans-serif;
+}
+
+.maze-wrap {
+    position: relative;
+//    display: inline-block;
+}
+
+.maze {
+    position: absolute;
+    display: inline-flex;
+    flex-direction: column;
+    border: 2px solid black;
+    margin: 0 auto;
+    .row {
+        display: flex;
+        .field {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border: 0 solid black;
+            background-color: darkgrey;
+            color: white;
+            &.visible {
+                color: black;
+                background-color: white;
+            }
+            &.highlight {
+                background-color: greenyellow;
+            }
+            &.border-top {
+                border-top-width: 2px;
+            }
+            &.border-bottom {
+                border-bottom-width: 2px;
+            }
+            &.border-left {
+                border-left-width: 2px;
+            }
+            &.border-right {
+                border-right-width: 2px;
+            }
+            span.node {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-weight: bold;
+                font-size: .625rem;
+            }
+        }
+    }
+}
+
+.kruskal-joints {
+    position: absolute;
+    top: 40px;
+    left: 25px;
+//    display: inline-flex;
+    flex-direction: column;
+    margin: 0 auto;
+    z-index: 1;
+    .row {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        .joint {
+            width: 100px;
+            height: 50px;
+            position: relative;
+            span.number {
+                position: absolute;
+                padding: 2px;
+                background-color: darkcyan;
+                color: white;
+                border-radius: 5px;
+                text-align: center;
+                font-size: .625rem;
+                font-weight: bold;
+                font-family: sans-serif;
+            }
+        }
+        &:nth-child(odd) {
+            left: 50px;
+        }
+    }
+}

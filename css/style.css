@@ -1,0 +1,72 @@
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: sans-serif; }
+
+.maze-wrap {
+  position: relative; }
+
+.maze {
+  position: absolute;
+  display: inline-flex;
+  flex-direction: column;
+  border: 2px solid black;
+  margin: 0 auto; }
+  .maze .row {
+    display: flex; }
+    .maze .row .field {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      border: 0 solid black;
+      background-color: darkgrey;
+      color: white; }
+      .maze .row .field.visible {
+        color: black;
+        background-color: white; }
+      .maze .row .field.highlight {
+        background-color: greenyellow; }
+      .maze .row .field.border-top {
+        border-top-width: 2px; }
+      .maze .row .field.border-bottom {
+        border-bottom-width: 2px; }
+      .maze .row .field.border-left {
+        border-left-width: 2px; }
+      .maze .row .field.border-right {
+        border-right-width: 2px; }
+      .maze .row .field span.node {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+        font-size: .625rem; }
+
+.kruskal-joints {
+  position: absolute;
+  top: 40px;
+  left: 25px;
+  flex-direction: column;
+  margin: 0 auto;
+  z-index: 1; }
+  .kruskal-joints .row {
+    display: flex;
+    flex-direction: row;
+    position: relative; }
+    .kruskal-joints .row .joint {
+      width: 100px;
+      height: 50px;
+      position: relative; }
+      .kruskal-joints .row .joint span.number {
+        position: absolute;
+        padding: 2px;
+        background-color: darkcyan;
+        color: white;
+        border-radius: 5px;
+        text-align: center;
+        font-size: .625rem;
+        font-weight: bold;
+        font-family: sans-serif; }
+    .kruskal-joints .row:nth-child(odd) {
+      left: 50px; }
