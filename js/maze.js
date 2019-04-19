@@ -1,6 +1,6 @@
 // initial values
-const mazeCols = 6;
-const mazeRows = 5;
+const mazeCols = 30;
+const mazeRows = 20;
 const displayInfo = false;
 
 const divMaze = document.querySelector('.maze');
@@ -167,8 +167,8 @@ class Maze {
                         firstDiv.classList.remove('highlight');
                         secondDiv.classList.remove('highlight');
                     }
-                }, 9)
-            }, 10*index);
+                }, 2)
+            }, 3*index);
         });
     }
     renderMaze() {
