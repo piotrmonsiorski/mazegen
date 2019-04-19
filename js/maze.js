@@ -1,6 +1,6 @@
 // initial values
-const mazeCols = 20;
-const mazeRows = 20;
+const mazeCols = 6;
+const mazeRows = 5;
 const displayInfo = false;
 
 const divMaze = document.querySelector('.maze');
@@ -58,22 +58,25 @@ class Maze {
         for(let i = 0; i < (2*rows)-1; i++) {
             let row = [];
             let jointCols;
-            i%2 ? jointCols = cols: jointCols = cols-1;
+            i%2 ? jointCols = cols : jointCols = cols-1;
             for(let j = 0; j < jointCols; j++) {
                 const jointCost = Math.floor(Math.random()*1000);
                 const joint = new KruskalJoint(jointCost);
-                if (jointCols%2) {
-                    joint.firstField = [Math.ceil(i/2)-1, j];
-                    joint.secondField = [Math.ceil(i/2), j];
+                if (jointCols%2) { // horizontal joint
+                    console.log(i,j);
+                    joint.firstField = [Math.floor(i/2), j];
+                    joint.secondField = [Math.floor(i/2), j+1];
                 }
-                else {
-                    joint.firstField = [Math.ceil(i/2), j];
-                    joint.secondField = [Math.ceil(i/2), j+1];
+                else { // vertical joint
+                    console.log(i,j);
+                    joint.firstField = [Math.floor(i/2), j];
+                    joint.secondField = [Math.floor(i/2)+1, j];
                 }
                 row.push(joint);
             }
             joints.push(row);
         }
+//        console.log(joints);
         
 //        if (displayInfo) {
 //            // display joints in overlaying table
@@ -106,6 +109,8 @@ class Maze {
 //        let costOrder = this.costOrder.splice(0,1);
 //        let costOrder = this.costOrder.splice(0,20);
         
+//        console.log(costOrder);
+        
         let index = 0;
         
         costOrder.forEach(joint => {
@@ -113,6 +118,8 @@ class Maze {
             setTimeout( () => {
                 this.renderMaze();
                 let orientation;
+//                console.log(joint.firstField[0], joint.firstField[1]);
+//                console.log(joint.secondField[0], joint.secondField[1]);
                 const firstField = this.map[joint.firstField[0]][joint.firstField[1]];
                 const secondField = this.map[joint.secondField[0]][joint.secondField[1]];
                 const firstNode = firstField.node;
