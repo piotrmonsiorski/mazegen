@@ -32,10 +32,11 @@ body {
             height: 20px;
             border: 0 solid black;
             background-color: darkgrey;
-            color: white;
             &.visible {
-                color: black;
                 background-color: white;
+            }
+            &.visited {
+                background-color: olivedrab;
             }
             &.highlight {
                 background-color: greenyellow;
@@ -60,40 +61,6 @@ body {
                 font-weight: bold;
                 font-size: .625rem;
             }
-        }
-    }
-}
-
-.kruskal-joints {
-    position: absolute;
-    top: 40px;
-    left: 25px;
-//    display: inline-flex;
-    flex-direction: column;
-    margin: 0 auto;
-    z-index: 1;
-    .row {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        .joint {
-            width: 100px;
-            height: 50px;
-            position: relative;
-            span.number {
-                position: absolute;
-                padding: 2px;
-                background-color: darkcyan;
-                color: white;
-                border-radius: 5px;
-                text-align: center;
-                font-size: .625rem;
-                font-weight: bold;
-                font-family: sans-serif;
-            }
-        }
-        &:nth-child(odd) {
-            left: 50px;
         }
     }
 }

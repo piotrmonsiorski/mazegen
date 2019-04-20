@@ -1,14 +1,13 @@
 // initial values
-const mazeCols = 30;
-const mazeRows = 20;
+const mazeCols = 15;
+const mazeRows = 15;
+const renderStep = 50;
 const displayInfo = false;
 
 const divMaze = document.querySelector('.maze');
-const divKruskalJoints = document.querySelector('.kruskal-joints');
-//const divRows = [...document.querySelectorAll('.maze .row')];
-//const divFields = [...document.querySelectorAll('.maze .field')];
 
 const dirs = ['north', 'south', 'east', 'west'];
+let renderTimer;
 
 class Field {
     constructor() {
@@ -17,6 +16,11 @@ class Field {
         this.neighbourS = false;
         this.neighbourE = false;
         this.neighbourW = false;
+        
+        // deep path
+        this.visited = false;
+        
+        // kruskal
         this.node = 0;
     }
 }
@@ -30,13 +34,24 @@ class KruskalJoint {
 }
 
 class Maze {
-    constructor(cols, rows) {
+    constructor(algorythm, cols = mazeCols, rows = mazeRows) {
+        const startTime = new Date();
+        console.log('algorythm: ' + algorythm);
+        
         this.map = this.generateMaze(cols, rows);
         this.cols = cols;
         this.rows = rows;
         
-        this.costOrder = this.kruskalJoints(cols, rows);
-        this.generateKruskal();
+        switch(algorythm) {
+            case 'deep-path':
+                this.algorythmDeepPath(cols, rows); break;
+            case 'kruskal':
+                this.algorythmKruskal(cols, rows); break;
+            default: break;
+        }
+        
+        const endTime = new Date();
+        console.log(`${endTime - startTime} ms`);
     }
     generateMaze(cols, rows) {
         let maze = [];
@@ -52,7 +67,69 @@ class Maze {
         }
         return maze;
     }
-    kruskalJoints(cols, rows) {
+    algorythmDeepPath(cols, rows) {
+        this.renderMaze();
+        
+        const backTrack = [];
+        
+        const startCol = Math.floor(Math.random()*mazeCols);
+        const startRow = Math.floor(Math.random()*mazeRows);
+        
+        const nextField = (row, col) => {
+            
+            this.map[row][col].visible = true;
+            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.add('visible');
+            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.add('visited');
+            
+            const dirsCopy = [...dirs];
+            const nextDirs = [];
+            for(let i = 4; i > 0; i--) {
+                const position = Math.floor(Math.random()*i);
+                nextDirs.push(dirsCopy[position]);
+                dirsCopy.splice(position,1);
+            }
+            nextDirs.push('prev'); // if all directions are already checked, go back
+
+            nextDirs.forEach(dir => {
+                switch (dir) {
+                    case 'north':
+                        if(row - 1 >= 0 && !this.map[row-1][col].visible) {
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.remove('border-top');
+                            document.querySelector(`.row[data-row="${row-1}"] .field[data-col="${col}"]`).classList.remove('border-bottom');
+                            nextField(row-1, col);
+                        }
+                        break;
+                    case 'south':
+                        if(row + 1 < this.map.length && !this.map[row+1][col].visible) {
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.remove('border-bottom');
+                            document.querySelector(`.row[data-row="${row+1}"] .field[data-col="${col}"]`).classList.remove('border-top');
+                            nextField(row+1, col);
+                        }
+                        break;
+                    case 'east':
+                        if(col + 1 < this.map[0].length && !this.map[row][col+1].visible) {
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.remove('border-right');
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col+1}"]`).classList.remove('border-left');
+                            nextField(row, col+1);
+                        }
+                        break;
+                    case 'west':
+                        if(col - 1 >= 0 && !this.map[row][col-1].visible) {
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.remove('border-left');
+                            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col-1}"]`).classList.remove('border-right');
+                            nextField(row, col-1);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
+            document.querySelector(`.row[data-row="${row}"] .field[data-col="${col}"]`).classList.remove('visited');
+        }
+        
+        nextField(startRow, startCol);
+    }
+    algorythmKruskal(cols, rows) {
         // create table with joints cost - vertical and horizontal
         let joints = [];
         for(let i = 0; i < (2*rows)-1; i++) {
@@ -62,36 +139,18 @@ class Maze {
             for(let j = 0; j < jointCols; j++) {
                 const jointCost = Math.floor(Math.random()*1000);
                 const joint = new KruskalJoint(jointCost);
-                if (jointCols%2) { // horizontal joint
-                    console.log(i,j);
-                    joint.firstField = [Math.floor(i/2), j];
-                    joint.secondField = [Math.floor(i/2), j+1];
-                }
-                else { // vertical joint
-                    console.log(i,j);
+                if (jointCols%2) { // vertical joint
                     joint.firstField = [Math.floor(i/2), j];
                     joint.secondField = [Math.floor(i/2)+1, j];
+                }
+                else { // horizontal joint
+                    joint.firstField = [Math.floor(i/2), j];
+                    joint.secondField = [Math.floor(i/2), j+1];
                 }
                 row.push(joint);
             }
             joints.push(row);
         }
-//        console.log(joints);
-        
-//        if (displayInfo) {
-//            // display joints in overlaying table
-//            joints.forEach(row => {
-//                const divRow = document.createElement('div');
-//                divRow.classList.add('row');
-//                row.forEach(joint => {
-//                    const divJoint = document.createElement('div');
-//                    divJoint.classList.add('joint');
-//                    divJoint.innerHTML = `<span class="number">[${joint.firstField}] [${joint.secondField}] <br/>  ${joint.cost}<span>`;
-//                    divRow.appendChild(divJoint);
-//                });
-//                divKruskalJoints.appendChild(divRow);
-//            });
-//        }
         
         function compare(a,b) {
             return a.cost - b.cost;
@@ -102,24 +161,13 @@ class Maze {
         })
         costOrder.sort(compare);
         
-        return costOrder;
-    }
-    generateKruskal() {
-        let costOrder = this.costOrder;
-//        let costOrder = this.costOrder.splice(0,1);
-//        let costOrder = this.costOrder.splice(0,20);
-        
-//        console.log(costOrder);
-        
         let index = 0;
         
         costOrder.forEach(joint => {
-            index++;
-            setTimeout( () => {
-                this.renderMaze();
+//            index++;
+//            setTimeout( () => {
+//                this.renderMaze();
                 let orientation;
-//                console.log(joint.firstField[0], joint.firstField[1]);
-//                console.log(joint.secondField[0], joint.secondField[1]);
                 const firstField = this.map[joint.firstField[0]][joint.firstField[1]];
                 const secondField = this.map[joint.secondField[0]][joint.secondField[1]];
                 const firstNode = firstField.node;
@@ -128,22 +176,18 @@ class Maze {
                 const firstDiv = document.querySelector(`.row[data-row="${joint.firstField[0]}"] .field[data-col="${joint.firstField[1]}"]`);
                 const secondDiv = document.querySelector(`.row[data-row="${joint.secondField[0]}"] .field[data-col="${joint.secondField[1]}"]`);
 
-                if(firstDiv && secondDiv) {
-                    firstDiv.classList.add('highlight');
-                    secondDiv.classList.add('highlight');
-                }
+//                if(firstDiv && secondDiv) {
+//                    firstDiv.classList.add('highlight');
+//                    secondDiv.classList.add('highlight');
+//                }
 
                 if (firstNode != secondNode) {
                     // assign all nodes from second grounp to the first group
                     this.map.forEach(row => {
                         row.forEach(field => {
-                            if (field.node == secondNode) {
-                                field.node = firstNode;
-                            }
-    //                        field.node == secondField.node ? field.node = firstField.node : false;
+                            field.node == secondNode ? field.node = firstNode : false;
                         });
                     });
-
 
                     joint.firstField[0] == joint.secondField[0] ? orientation = 'hor' : orientation = 'ver';
                     switch(orientation) {
@@ -162,14 +206,15 @@ class Maze {
                         default: break;
                     }
                 }
-                setTimeout( () => {
-                    if(firstDiv && secondDiv) {
-                        firstDiv.classList.remove('highlight');
-                        secondDiv.classList.remove('highlight');
-                    }
-                }, 2)
-            }, 3*index);
+//                setTimeout( () => {
+//                    if(firstDiv && secondDiv) {
+//                        firstDiv.classList.remove('highlight');
+//                        secondDiv.classList.remove('highlight');
+//                    }
+//                }, renderStep-1)
+//            }, renderStep*index);
         });
+        this.renderMaze();
     }
     renderMaze() {
         divMaze.innerHTML = '';
@@ -186,29 +231,6 @@ class Maze {
                 this.map[i][j].neighbourE ? false : divField.classList.add('border-right');
                 this.map[i][j].neighbourW ? false : divField.classList.add('border-left');
                 this.map[i][j].visible ? divField.classList.add('visible') : false;
-//                const spanNode = document.createElement('span');
-//                spanNode.classList.add('node');
-//                spanNode.textContent = this.map[i][j].node;
-//                divField.appendChild(spanNode);
-                
-//                if (displayInfo) {
-//                    dirs.forEach(dir => {
-//                        const spanDir = document.createElement('span');
-//                        spanDir.classList.add(dir);
-//                        switch(dir) {
-//                            case 'north':
-//                                spanDir.textContent = `${this.map[i][j].neighbourN}`; break;
-//                            case 'south':
-//                                spanDir.textContent = `${this.map[i][j].neighbourS}`; break;
-//                            case 'east':
-//                                spanDir.textContent = `${this.map[i][j].neighbourE}`; break;
-//                            case 'west':
-//                                spanDir.textContent = `${this.map[i][j].neighbourW}`; break;
-//                            default: break;
-//                        }
-//                        divField.appendChild(spanDir);
-//                    });
-//                }
                 
                 divRow.appendChild(divField);
             }
@@ -217,6 +239,10 @@ class Maze {
     }
 }
 
-const maze = new Maze(mazeCols, mazeRows);
-maze.renderMaze();
-//maze.generateMaze();
+//let maze = new Maze('kruskal');
+let maze = new Maze('deep-path');
+
+const btnKruskal = document.querySelector('#kruskal');
+const btnDeepPath = document.querySelector('#deep-path');
+btnKruskal.addEventListener('click', () => { maze = new Maze('kruskal'); });
+btnDeepPath.addEventListener('click', () => { maze = new Maze('deep-path'); });
